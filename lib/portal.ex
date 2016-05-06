@@ -9,17 +9,21 @@ defmodule Portal do
     import Supervisor.Spec, warn: false
 
     children = [
-      # Define workers and child supervisors to be supervised
-      # worker(Portal.Worker, [arg1, arg2, arg3]),
+      worker(Portal.Door, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Portal.Supervisor]
+    opts = [strategy: :simple_one_for_one, name: Portal.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
-
+  @doc """
+  Shoots a new door with the given `color`.
+  """
+  def shoot(color) do
+    Supervisor.start_child(Portal.Supervisor, [color])
+  end
 
   @doc """
   Starts transfering `data` from `left` to `right`.
@@ -48,7 +52,6 @@ defmodule Portal do
     # Return the portal itself
     portal
   end
-
 end
 
 defimpl Inspect, for: Portal do
@@ -59,7 +62,7 @@ defimpl Inspect, for: Portal do
     left_data   = inspect(Enum.reverse(Portal.Door.get(left)))
     right_data  = inspect(Portal.Door.get(right))
 
-    max = max(String.length(left_door), String.length(left_data)) 
+    max = max(String.length(left_door), String.length(left_data))
 
     """
     #Portal<
